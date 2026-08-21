@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BBC Tandoor Restaurant — Billing</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,600&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#FBF4E8;
+    --cream-2:#F3E6D0;
+    --coal:#2A160B;
+    --brown:#4A2413;
+    --brown-2:#6B3410;
+    --ember:#B8452F;
+    --gold:#C6961F;
+    --gold-2:#E3B23C;
+    --ink-soft:#8B6F52;
+    --line:#E4D3B4;
+    --white:#FFFDF9;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0; overscroll-behavior-y:contain;}
+  body{
+    background:var(--cream);
+    color:var(--coal);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--gold-2);color:var(--coal);}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    background:var(--coal);
+    background-image:linear-gradient(180deg,var(--brown) 0%, var(--coal) 130%);
+    color:var(--cream);
+    padding:14px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    position:sticky;
+    top:0;
+    z-index:50;
+    box-shadow:0 4px 14px rgba(0,0,0,.18);
+  }
+  .brand{display:flex;align-items:center;gap:10px;}
+  .brand .mark{
+    font-family:'Fraunces',serif;
+    font-weight:900;
+    font-size:22px;
+    letter-spacing:.5px;
+    color:var(--gold-2);
+    line-height:1;
+  }
+  .brand .sub{
+    font-size:10px;
+    letter-spacing:2.5px;
+    text-transform:uppercase;
+    color:var(--cream-2);
+    opacity:.8;
+  }
+  .crumbs{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--cream-2);
+    opacity:.85;
+    display:flex;
+    gap:6px;
+    align-items:center;
+    flex-wrap:wrap;
+  }
+  .crumbs .seg{opacity:.55;}
+  .crumbs .cur{color:var(--gold-2);opacity:1;font-weight:600;}
+  .topbar-actions{display:flex;gap:8px;}
+  .icon-btn{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.16);
+    color:var(--cream);
+    padding:8px 12px;
+    border-radius:8px;
+    font-size:12.5px;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .icon-btn:hover{background:rgba(255,255,255,.16);}
+
+  /* ---------- wave divider (signature motif from the physical menu) ---------- */
+  .wave{
+    height:14px;
+    width:100%;
+    background:var(--coal);
+    -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 14'%3E%3Cpath d='M0 7 Q5 0 10 7 T20 7 T30 7 T40 7 V14 H0 Z'/%3E%3C/svg%3E");
+    -webkit-mask-size:40px 14px;
+    mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 14'%3E%3Cpath d='M0 7 Q5 0 10 7 T20 7 T30 7 T40 7 V14 H0 Z'/%3E%3C/svg%3E");
+    mask-size:40px 14px;
+  }
+
+  .container{max-width:960px;margin:0 auto;padding:26px 18px 100px;}
+
+  h1.page-title{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:26px;
+    margin:4px 0 4px;
+    color:var(--coal);
+  }
+  p.page-sub{
+    color:var(--ink-soft);
+    font-size:13.5px;
+    margin:0 0 22px;
+  }
+
+  /* ---------- room select ---------- */
+  .room-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;}
+  .room-card{
+    background:var(--white);
+    border:1px solid var(--line);
+    border-radius:14px;
+    padding:22px 20px;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    transition:.18s;
+    text-align:left;
+  }
+  .room-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(74,36,19,.14);border-color:var(--gold);}
+  .room-card .num{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--gold);
+    letter-spacing:1.5px;
+    font-weight:600;
+  }
+  .room-card h3{
+    font-family:'Fraunces',serif;
+    font-size:21px;
+    margin:6px 0 4px;
+    color:var(--coal);
+  }
+  .room-card p{font-size:12.5px;color:var(--ink-soft);margin:0;}
+  .room-card .tag{
+    position:absolute;top:18px;right:18px;
+    background:var(--cream-2);color:var(--brown-2);
+    font-size:10.5px;font-weight:700;padding:4px 9px;border-radius:20px;
+  }
+
+  /* ---------- table grid ---------- */
+  .table-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;max-width:520px;}
+  .table-btn{
+    background:var(--white);
+    border:1.5px solid var(--line);
+    border-radius:12px;
+    padding:22px 10px;
+    text-align:center;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .table-btn:hover{border-color:var(--gold);transform:translateY(-2px);}
+  .table-btn .t-num{
+    font-family:'Fraunces',serif;
+    font-size:28px;
+    font-weight:700;
+    color:var(--brown);
+  }
+  .table-btn .t-label{font-size:10.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+  .table-btn.occupied{background:#FBEDE4;border-color:var(--ember);}
+  .table-btn.occupied .t-num{color:var(--ember);}
+  .table-btn.occupied .t-label{color:var(--ember);}
+
+  .back-link{
+    display:inline-flex;align-items:center;gap:5px;
+    background:none;border:none;color:var(--brown-2);
+    font-family:'Inter',sans-serif;font-weight:600;font-size:13px;
+    cursor:pointer;padding:0;margin-bottom:14px;
+  }
+  .back-link:hover{color:var(--ember);}
+
+  /* ---------- menu screen ---------- */
+  .menu-layout{display:flex;gap:20px;align-items:flex-start;}
+  .menu-main{flex:1;min-width:0;}
+  .search-row{display:flex;gap:10px;margin-bottom:14px;}
+  .search-box{
+    flex:1;padding:11px 14px;border-radius:10px;border:1.5px solid var(--line);
+    font-family:'Inter',sans-serif;font-size:14px;background:var(--white);
+  }
+  .search-box:focus{outline:none;border-color:var(--gold);}
+  .cat-tabs{
+    display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:6px;
+    scrollbar-width:thin;
+  }
+  .cat-tab{
+    flex:0 0 auto;
+    padding:7px 14px;border-radius:20px;border:1.5px solid var(--line);
+    background:var(--white);font-size:12.5px;font-weight:600;color:var(--brown-2);
+    cursor:pointer;white-space:nowrap;transition:.15s;
+  }
+  .cat-tab.active{background:var(--coal);border-color:var(--coal);color:var(--gold-2);}
+
+  .cat-heading{
+    font-family:'Fraunces',serif;font-size:17px;font-weight:700;
+    color:var(--brown);margin:22px 0 10px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .cat-heading::after{content:"";flex:1;height:1px;background:var(--line);}
+
+  .item-row{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--white);border:1px solid var(--line);
+    border-radius:10px;padding:11px 13px;margin-bottom:8px;
+    gap:10px;
+  }
+  .item-info{min-width:0;}
+  .item-name{font-size:14px;font-weight:600;color:var(--coal);}
+  .item-price{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink-soft);margin-top:2px;}
+  .item-price .na{color:var(--ember);font-style:italic;}
+  .add-btn{
+    background:var(--brown);color:var(--cream);border:none;
+    padding:8px 15px;border-radius:8px;font-weight:700;font-size:12.5px;
+    cursor:pointer;white-space:nowrap;flex:0 0 auto;transition:.15s;
+  }
+  .add-btn:hover{background:var(--ember);}
+  .half-opt{
+    display:flex;gap:6px;flex:0 0 auto;
+  }
+  .half-opt button{
+    background:var(--cream-2);color:var(--brown);border:1px solid var(--line);
+    padding:7px 11px;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer;
+  }
+  .half-opt button:hover{background:var(--gold-2);border-color:var(--gold-2);}
+
+  .no-results{color:var(--ink-soft);font-size:13.5px;padding:30px 0;text-align:center;}
+
+  /* ---------- cart sidebar ---------- */
+  .cart-panel{
+    width:290px;flex:0 0 auto;
+    background:var(--white);border:1px solid var(--line);border-radius:14px;
+    padding:16px;position:sticky;top:78px;max-height:80vh;display:flex;flex-direction:column;
+  }
+  .cart-panel h4{
+    font-family:'Fraunces',serif;margin:0 0 4px;font-size:16px;color:var(--coal);
+    display:flex;justify-content:space-between;align-items:center;
+  }
+  .cart-loc{font-size:11px;color:var(--gold);font-weight:700;letter-spacing:.5px;margin-bottom:10px;font-family:'IBM Plex Mono',monospace;}
+  .cart-items{overflow-y:auto;flex:1;margin-bottom:10px;}
+  .cart-empty{color:var(--ink-soft);font-size:12.5px;padding:20px 0;text-align:center;}
+  .cart-line{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:7px 0;border-bottom:1px dashed var(--line);gap:6px;
+  }
+  .cart-line .cl-name{font-size:12.5px;font-weight:600;flex:1;min-width:0;}
+  .cart-line .cl-meta{font-size:10.5px;color:var(--ink-soft);}
+  .qty-ctrl{display:flex;align-items:center;gap:5px;}
+  .qty-ctrl button{
+    width:20px;height:20px;border-radius:5px;border:1px solid var(--line);background:var(--cream-2);
+    font-weight:700;cursor:pointer;font-size:12px;line-height:1;
+  }
+  .qty-ctrl span{font-family:'IBM Plex Mono',monospace;font-size:12px;min-width:16px;text-align:center;}
+  .cl-amt{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:600;min-width:48px;text-align:right;}
+  .cart-total{
+    border-top:1.5px solid var(--coal);padding-top:10px;
+    display:flex;justify-content:space-between;align-items:center;
+    font-family:'Fraunces',serif;font-weight:700;font-size:18px;margin-bottom:10px;
+  }
+  .btn-generate{
+    background:var(--ember);color:var(--white);border:none;
+    padding:13px;border-radius:10px;font-weight:700;font-size:14px;
+    cursor:pointer;width:100%;transition:.15s;
+  }
+  .btn-generate:hover{background:#9c3a26;}
+  .btn-generate:disabled{background:#D8C9B4;cursor:not-allowed;}
+  .btn-clear{
+    background:none;border:none;color:var(--ink-soft);font-size:11.5px;
+    cursor:pointer;margin-top:8px;width:100%;text-decoration:underline;
+  }
+
+  /* mobile cart bar */
+  .mobile-cart-bar{
+    display:none;position:fixed;bottom:0;left:0;right:0;
+    background:var(--coal);color:var(--cream);padding:12px 16px;
+    align-items:center;justify-content:space-between;z-index:60;
+    box-shadow:0 -6px 16px rgba(0,0,0,.2);
+  }
+  .mobile-cart-bar .mc-info{font-size:12.5px;color:var(--cream-2);}
+  .mobile-cart-bar .mc-total{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--gold-2);}
+  .mobile-cart-bar button{
+    background:var(--ember);color:var(--white);border:none;padding:11px 18px;
+    border-radius:9px;font-weight:700;font-size:13px;cursor:pointer;
+  }
+
+  /* ---------- bill / receipt ---------- */
+  .receipt-wrap{display:flex;justify-content:center;}
+  .receipt{
+    background:var(--white);
+    width:100%;max-width:380px;
+    padding:26px 22px 20px;
+    border-radius:4px;
+    box-shadow:0 12px 30px rgba(74,36,19,.16);
+    font-family:'IBM Plex Mono',monospace;
+    position:relative;
+  }
+  .receipt::before,.receipt::after{
+    content:"";position:absolute;left:0;right:0;height:14px;
+    background:radial-gradient(circle,var(--cream) 6px,transparent 7px);
+    background-size:16px 16px;background-position:-4px center;
+  }
+  .receipt::before{top:-7px;}
+  .receipt::after{bottom:-7px;}
+  .r-head{text-align:center;margin-bottom:14px;}
+  .r-head .r-brand{font-family:'Fraunces',serif;font-weight:900;font-size:22px;color:var(--brown);}
+  .r-head .r-sub{font-size:9.5px;letter-spacing:2px;color:var(--ink-soft);text-transform:uppercase;margin-top:2px;}
+  .r-meta{font-size:11px;color:var(--coal);display:flex;justify-content:space-between;margin:3px 0;}
+  .r-rule{border-top:1px dashed var(--line);margin:10px 0;}
+  .r-item{display:flex;justify-content:space-between;font-size:11.5px;margin:5px 0;gap:8px;}
+  .r-item .ri-name{flex:1;}
+  .r-item .ri-qty{color:var(--ink-soft);width:26px;text-align:center;}
+  .r-item .ri-amt{width:56px;text-align:right;font-weight:600;}
+  .r-total{display:flex;justify-content:space-between;font-size:15px;font-weight:700;margin-top:8px;color:var(--coal);}
+  .r-foot{text-align:center;margin-top:16px;font-size:10.5px;color:var(--ink-soft);}
+  .r-foot .thank{font-family:'Fraunces',serif;font-style:italic;font-size:15px;color:var(--brown);margin-bottom:2px;}
+
+  .bill-actions{display:flex;gap:10px;justify-content:center;margin-top:20px;flex-wrap:wrap;}
+  .btn-primary{background:var(--brown);color:var(--cream);border:none;padding:12px 22px;border-radius:9px;font-weight:700;font-size:13.5px;cursor:pointer;}
+  .btn-primary:hover{background:var(--ember);}
+  .btn-secondary{background:var(--white);color:var(--brown-2);border:1.5px solid var(--line);padding:12px 22px;border-radius:9px;font-weight:700;font-size:13.5px;cursor:pointer;}
+  .btn-secondary:hover{border-color:var(--gold);}
+  .saved-badge{
+    text-align:center;color:#3E7C4A;font-weight:700;font-size:13px;margin-top:12px;
+    display:none;
+  }
+  .printer-box{
+    max-width:380px;margin:18px auto 0;
+    background:var(--cream-2);border:1px dashed var(--gold);border-radius:10px;
+    padding:14px 16px;
+  }
+  .printer-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:8px;}
+  .btn-tiny{
+    background:var(--white);color:var(--brown-2);border:1.5px solid var(--line);
+    padding:8px 13px;border-radius:8px;font-weight:700;font-size:12px;cursor:pointer;
+  }
+  .btn-tiny:hover{border-color:var(--gold);}
+  .printer-status{font-size:11.5px;color:var(--ink-soft);text-align:center;line-height:1.5;}
+
+  /* ---------- history ---------- */
+  .hist-summary{display:flex;gap:14px;margin-bottom:20px;flex-wrap:wrap;}
+  .stat-card{
+    background:var(--white);border:1px solid var(--line);border-radius:12px;
+    padding:14px 18px;flex:1;min-width:130px;
+  }
+  .stat-card .s-label{font-size:10.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:1px;}
+  .stat-card .s-val{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--brown);margin-top:3px;}
+  .hist-row{
+    background:var(--white);border:1px solid var(--line);border-radius:10px;
+    padding:12px 15px;margin-bottom:9px;display:flex;justify-content:space-between;
+    align-items:center;cursor:pointer;gap:10px;
+  }
+  .hist-row:hover{border-color:var(--gold);}
+  .hist-left .h-loc{font-weight:700;font-size:13.5px;color:var(--coal);}
+  .hist-left .h-time{font-size:11px;color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;margin-top:2px;}
+  .hist-right{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--brown);font-size:14px;}
+  .empty-state{text-align:center;color:var(--ink-soft);padding:60px 20px;font-size:14px;}
+
+  .modal-back{
+    position:fixed;inset:0;background:rgba(42,22,11,.5);z-index:100;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-box{max-height:90vh;overflow-y:auto;}
+
+  @media print{
+    body *{visibility:hidden;}
+    .receipt,.receipt *{visibility:visible;}
+    .receipt{position:absolute;top:0;left:0;box-shadow:none;}
+    .bill-actions,.saved-badge{display:none !important;}
+  }
+
+  @media (max-width:760px){
+    .menu-layout{flex-direction:column;}
+    .cart-panel{display:none;}
+    .mobile-cart-bar{display:flex;}
+    .container{padding-bottom:130px;}
+    .table-grid{grid-template-columns:repeat(3,1fr);max-width:100%;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div>
+      <div class="mark">BBC</div>
+      <div class="sub">Tandoor · Billing</div>
+    </div>
+  </div>
+  <div class="crumbs" id="crumbs"></div>
+  <div class="topbar-actions">
+    <button class="icon-btn" onclick="goHistory()">History</button>
+    <button class="icon-btn" onclick="goHome()">New Order</button>
+  </div>
+</div>
+<div class="wave"></div>
+
+<div class="container" id="app"></div>
+
+<div class="mobile-cart-bar" id="mobileCartBar" style="display:none;">
+  <div>
+    <div class="mc-info" id="mcInfo">0 items</div>
+    <div class="mc-total" id="mcTotal">₹0</div>
+  </div>
+  <button onclick="generateBill()">Generate Bill</button>
+</div>
+
+<script>
+/* ============== MENU DATA ============== */
+/* price: single number, or {full, half} */
+const MENU = [
+{ cat:"Tandoori Ka Khajana", items:[
+  {n:"Atishi Tandoori", p:{full:550,half:300}},
+  {n:"Lahori Tandoori", p:{full:550,half:300}},
+  {n:"Pathani Tandoori", p:{full:500,half:290}},
+  {n:"Chicken Tandoori", p:{full:450,half:250}},
+  {n:"Chicken Schezwan Tandoori", p:{full:520,half:300}},
+  {n:"Lemon Tandoori", p:{full:500,half:290}},
+  {n:"Lapeti Tandoori", p:{full:550,half:300}},
+  {n:"Barra Tandoori", p:{full:550,half:300}},
+  {n:"Creamy Tandoori", p:{full:500,half:290}},
+  {n:"Pahadi Tandoori", p:{full:500,half:290}},
+  {n:"Kali Mirch Tandoori", p:{full:550,half:300}},
+]},
+{ cat:"Tandoori Leg & Tikka", items:[
+  {n:"Chicken Leg", p:200},{n:"Chicken Schezwan Leg", p:230},{n:"Shahi Leg", p:280},
+  {n:"Winter Leg", p:280},{n:"Chicken Tikka (6 pcs)", p:220},{n:"Lahori Tikka (6 pcs)", p:290},
+  {n:"Pathani Tikka (6 pcs)", p:290},{n:"Tangdi Kabab (2 pcs)", p:290},
+  {n:"Kali Mirch Kabab (6 pcs)", p:250},{n:"Banjara Kabab (6 pcs)", p:240},
+  {n:"Pahadi Kabab (6 pcs)", p:240},{n:"Peri Peri Tikka (6 pcs)", p:300},
+  {n:"Malai Tikka (6 pcs)", p:300},{n:"Sp. BBC Tikka (8 pcs)", p:350},
+  {n:"Reshmi Tikka (6 pcs)", p:270},{n:"Chicken Sheekh (2 pcs)", p:120},
+  {n:"Chicken Malai Sheekh (2 pcs)", p:140},{n:"Tiranga Kabab (9 pcs)", p:400},
+  {n:"Dum Chicken", p:{full:550,half:300}},
+]},
+{ cat:"Chicken Special", items:[
+  {n:"Sp. BBC Murg Musallam", p:900},{n:"Chicken Murg Musallam", p:800},
+  {n:"Chicken Sp. BBC", p:300},{n:"Chicken Peshavari", p:280},{n:"Chicken Lakhnawi", p:280},
+  {n:"Chicken Kadai", p:210},{n:"Chicken Angara", p:250},{n:"Chicken Balti", p:200},
+  {n:"Chicken Handi", p:210},{n:"Chicken Kolhapuri", p:220},{n:"Chicken Tikka Masala", p:230},
+  {n:"Butter Chicken", p:200},{n:"Chicken Afghani", p:200},{n:"Chicken Rasida", p:200},
+  {n:"Chicken Do Pyaza", p:200},{n:"Chicken Korma", p:150},{n:"Chicken Stu Fry", p:180},
+  {n:"Chicken Masala Fry", p:180},{n:"Chicken Green", p:230},{n:"Chicken Kabuli", p:260},
+  {n:"Chicken Patiyala", p:260},{n:"Chicken Hariyali", p:260},{n:"Chicken Hydrabadi", p:260},
+  {n:"Chicken Laziz", p:270},{n:"Chicken Rara", p:280},{n:"Chicken Kasturi", p:270},
+  {n:"Chicken Lasuniya", p:280},{n:"Reshmi Tikka Masala", p:280},{n:"Pahadi Tikka Masala", p:280},
+]},
+{ cat:"Samandar Ka Khazana (Fish)", items:[
+  {n:"Fish Tandoori", p:0},{n:"Fish Tikka", p:0},{n:"Fish Tikka Masala", p:0},
+  {n:"Fish Curry", p:0},{n:"Fish Masala", p:0},{n:"Fish Fry", p:0},
+]},
+{ cat:"Mutton Special", items:[
+  {n:"Mutton Sp. BBC", p:350},{n:"Mutton Sp. Matka Gosht (500g)", p:600},
+  {n:"Mutton Mari Matka Gosht (500g)", p:700},{n:"Mutton Pudina Matka Gosht (500g)", p:700},
+  {n:"Mutton Angara", p:300},{n:"Mutton Bhuna", p:300},{n:"Mutton Hariyali", p:300},
+  {n:"Mutton Sukha", p:400},{n:"Mutton Dabba Ghosht", p:300},{n:"Mutton Kadai", p:240},
+  {n:"Mutton Handi", p:240},{n:"Mutton Afghani", p:250},{n:"Mutton Moghlai", p:250},
+  {n:"Mutton Rasida", p:240},{n:"Mutton Kolhapuri", p:240},{n:"Mutton Roghan Josh", p:240},
+  {n:"Mutton Do Pyaza", p:240},{n:"Mutton Palak", p:240},{n:"Mutton Korma", p:180},
+  {n:"Mutton Dal Gosht", p:180},{n:"Mutton Masala Fry", p:210},{n:"Mutton Keema", p:120},
+  {n:"Mutton Kheema Fry", p:150},{n:"Keema Goltala", p:170},
+]},
+{ cat:"Egg Masti", items:[
+  {n:"Egg Masala Fry", p:160},{n:"Egg Curry", p:160},{n:"Egg Kheema Gotala", p:140},
+  {n:"Egg Omelette (Double)", p:80},{n:"Egg Bhorji (Double)", p:90},
+  {n:"Egg Half Fry (Double)", p:100},{n:"Egg Boil", p:20},
+]},
+{ cat:"Chinese Starter", items:[
+  {n:"Lasaniya Chana", p:120},{n:"Chicken Crispy", p:200},{n:"Chicken Sp. BBC Crispy", p:250},
+  {n:"Chicken Kurkure", p:250},{n:"Chicken Curanchy", p:250},{n:"Chicken Lolipop", p:180},
+  {n:"Chicken Tandoor Lolipop", p:220},{n:"Nawabi Lolipop Fry", p:250},
+  {n:"Chicken Chatpata Dry", p:250},{n:"Chicken Chilly Dry", p:200},
+  {n:"Chicken Manchurian Dry", p:210},{n:"Chicken Schezwan Dry", p:220},
+  {n:"Chicken Garlic Dry", p:240},{n:"Chicken Jingar Dry", p:240},
+  {n:"Chicken 65 Dry", p:210},{n:"Chicken Dragon Dry", p:280},
+  {n:"Chicken Hot Paper Dry", p:220},{n:"Lemon Chicken", p:220},
+  {n:"Chicken Drum Stick", p:400},{n:"Chicken Solder Paper", p:250},
+  {n:"Chicken Dana", p:150},{n:"Paneer Chilly Dry", p:250},{n:"Veg. Manchurian Dry", p:250},
+]},
+{ cat:"Chinese Soup", items:[
+  {n:"Chicken Manchow Soup", p:120},{n:"Chicken Hot & Sour Soup", p:140},
+  {n:"Chicken Clear Soup", p:130},{n:"Chicken Noodles Soup", p:140},
+  {n:"Veg. Hot & Sour Soup", p:120},{n:"Veg. Noodles Soup", p:120},{n:"Veg. Manchow Soup", p:120},
+]},
+{ cat:"Chinese Gravy", items:[
+  {n:"Lolipop Gravy", p:200},{n:"Lolipop Chatpata Gravy", p:220},{n:"Chilly Gravy", p:200},
+  {n:"Manchurian Gravy", p:200},{n:"Schezwan Gravy", p:200},{n:"Singhapuri Gravy", p:200},
+  {n:"Hong Kong Gravy", p:200},{n:"Garlic Gravy", p:200},{n:"65 Gravy", p:200},{n:"Jingar Gravy", p:200},
+]},
+{ cat:"Chinese Noodles", items:[
+  {n:"Hakka Noodles", p:150},{n:"Schezwan Noodles", p:160},{n:"Singhapuri Noodles", p:170},
+  {n:"Hong Kong Noodles", p:180},{n:"Malaysian Noodles", p:220},{n:"Chopper Noodles", p:220},
+  {n:"Chinese Bhel", p:160},
+]},
+{ cat:"Tawa Special", items:[
+  {n:"Chicken Tawa", p:280},{n:"Mutton Tawa", p:320},{n:"Sheekh Tawa", p:300},
+  {n:"Tandoori Chicken Tawa", p:300},{n:"Tandoori Mutton Tawa", p:320},
+  {n:"Bheja Tawa Fry", p:280},{n:"Kaleji", p:220},{n:"Fish Tawa Masala Fry", p:250},
+  {n:"Prawns Tawa Masala Fry", p:380},
+]},
+{ cat:"Ran Special", items:[
+  {n:"Ran Tandoori", p:1400},{n:"Ran Tandoori Masala", p:1700},{n:"Ran Biryani", p:1800},
+]},
+{ cat:"Chinese Rice", items:[
+  {n:"Chicken BBC Fried Rice", p:400},{n:"Chicken Tripple Rice", p:200},
+  {n:"Chicken Chilly Rice", p:180},{n:"Chicken Manchurian Rice", p:180},
+  {n:"Veg. Tripple Rice", p:200},{n:"Chicken Combination Rice", p:150},
+  {n:"Chicken Khabsa Rice", p:800},{n:"Chicken Fried Rice", p:140},
+  {n:"Chicken Schezwan Fried Rice", p:160},{n:"Chicken Singhapuri Rice", p:180},
+  {n:"Chicken Pot Rice", p:200},{n:"Chicken Hong Kong Rice", p:180},
+  {n:"Chicken Malaysian Rice", p:230},{n:"Egg Fried Rice", p:130},{n:"Egg Schezwan Fried Rice", p:150},
+]},
+{ cat:"Basmati Ki Khooshu (Biryani/Rice)", items:[
+  {n:"Chicken Biryani", p:170},{n:"Mutton Biryani", p:200},{n:"Chicken Hydrabadi Biryani", p:190},
+  {n:"Mutton Hydrabadi Biryani", p:220},{n:"Chicken Tikka Biryani", p:220},{n:"Egg Biryani", p:160},
+  {n:"Veg. Biryani", p:140},{n:"Veg. Pulav", p:140},{n:"Mutton Pulav", p:200},
+  {n:"Chicken Pulav", p:180},{n:"Egg Pulav", p:140},{n:"Steam Rice", p:60},
+  {n:"Biryani Rice", p:60},{n:"Jira Rice", p:70},{n:"Rice with Gravy", p:80},
+  {n:"Masala Rice", p:100},{n:"Jira Rice with Gravy", p:100},
+]},
+{ cat:"Khane Ke Sath", items:[
+  {n:"Curd Raita", p:100},{n:"Curd", p:50},{n:"Masala Papad", p:35},
+  {n:"Fry Papad", p:20},{n:"Roasted Papad", p:20},{n:"Buttermilk (Masala Chaas)", p:20},
+]},
+{ cat:"Vegetable", items:[
+  {n:"Sp. Veg. BBC", p:160},{n:"Veg. Tawa", p:140},{n:"Veg. Makkhanwala", p:150},
+  {n:"Veg. Angara", p:170},{n:"Veg. Koya Kaju (Sweet)", p:180},{n:"Kaju Curry", p:170},
+  {n:"Veg. Jaipuri", p:160},{n:"Veg. Kolhapuri", p:160},{n:"Veg. Tufani", p:160},
+  {n:"Veg. Hydrabadi", p:160},{n:"Veg. Handi", p:160},{n:"Veg. Khima", p:130},
+  {n:"Mix Veg.", p:120},{n:"Chana Masala", p:120},{n:"Sev Tamatar", p:120},
+  {n:"Sev Masala", p:120},{n:"Dal Fry Tadka", p:100},{n:"Dal Fry Butter", p:100},
+  {n:"Dal Fry", p:80},{n:"Dahi Fry", p:100},
+]},
+{ cat:"Paneer", items:[
+  {n:"Sp. Paneer BBC", p:170},{n:"Paneer Tikka Masala", p:160},{n:"Paneer Green Peas Tawa", p:160},
+  {n:"Paneer Butter Masala", p:160},{n:"Paneer Tawa", p:170},{n:"Paneer Kadai", p:170},
+  {n:"Paneer Handi", p:170},{n:"Paneer Bhurji", p:140},{n:"Paneer Palak", p:160},
+  {n:"Paneer Mutter", p:160},{n:"Shahi Paneer", p:170},{n:"Paneer Tufani", p:170},
+  {n:"Paneer Hydrabadi", p:170},
+]},
+{ cat:"Koyle Ki Khan Se (Breads)", items:[
+  {n:"Chapati", p:12},{n:"Butter Chapati", p:15},{n:"Chapati Paratha", p:25},
+  {n:"Chapati Butter Paratha", p:30},{n:"Tandoori Roti", p:15},{n:"Tandoori Butter Roti", p:20},
+  {n:"Tandoori Naan", p:40},{n:"Tandoori Butter Naan", p:45},{n:"Tandoori Paratha", p:40},
+  {n:"Tandoori Butter Paratha", p:45},{n:"Garlic Naan", p:60},{n:"Cheese Naan", p:80},
+  {n:"Butter Kulcha", p:70},{n:"Aloo Paratha", p:100},
+]},
+{ cat:"Lassi", items:[
+  {n:"Sp. BBC Lassi", p:120},{n:"Sadi Lassi", p:70},{n:"Sp. Lassi", p:80},
+  {n:"Mango Lassi", p:100},{n:"Strawberry Lassi", p:100},{n:"Kesar Lassi", p:100},
+  {n:"Chocolate Lassi", p:100},{n:"Rajwadi Lassi", p:120},
+]},
+{ cat:"Hot Drinks", items:[
+  {n:"Sp. Tea", p:35},{n:"Tea", p:25},{n:"Black Tea", p:20},{n:"Sp. Coffee", p:30},{n:"Hot Milk", p:30},
+]},
+{ cat:"Sweets", items:[
+  {n:"Penda", p:0},{n:"Milk Cake", p:0},{n:"Mithai", p:0},
+]},
+{ cat:"Dessert", items:[
+  {n:"Caramel Custard", p:40},{n:"Kheer", p:90},
+]},
+{ cat:"Family Pack (1 kg)", items:[
+  {n:"Mutton Biryani 1.5kg + Mutton 1kg + Rice", p:0},
+  {n:"Chicken Biryani 1.5kg + Chicken 1kg + Rice", p:0},
+  {n:"Butter Chicken (Boneless) 1kg", p:0},{n:"Chicken Kadai 1kg", p:0},{n:"Mutton Kadai 1kg", p:0},
+  {n:"Mutton Handi 1kg", p:0},{n:"Chicken Handi 1kg", p:0},{n:"Chicken White 1kg", p:0},
+  {n:"Mutton White 1kg", p:0},{n:"Chicken Green 1kg", p:0},{n:"Mutton Green 1kg", p:0},
+  {n:"Chicken Angara 1kg", p:0},{n:"Mutton Korma 1kg", p:0},{n:"Chicken Korma 1kg", p:0},
+  {n:"Mutton Dal Ghosht 1kg", p:0},{n:"Mutton Bhaji Ghosht 1kg", p:0},
+  {n:"Basmati Walima Rice 1kg", p:0},{n:"Mutton Dabba Gosht 1kg", p:0},
+  {n:"Dudhi Halvo", p:0},{n:"Jardo", p:0},
+]},
+{ cat:"Party Thals", items:[
+  {n:"Moghlai Thal (per plate)", p:1999},{n:"Sp. BBC Thal (per plate)", p:3999},
+]},
+];
+
+const ROOMS = [
+  {id:"ac", name:"AC Hall", tag:"Indoor · Cooled", tables:6},
+  {id:"dastar", name:"Dastarkhwan", tag:"Floor Seating", tables:6},
+  {id:"garden", name:"Garden (Outdoor)", tag:"Open Air", tables:6},
+];
+
+/* ============== STORAGE ==============
+   Uses the built-in window.storage bridge when this page runs inside a
+   Claude artifact. When deployed elsewhere (e.g. GitHub Pages), that
+   bridge does not exist, so everything falls back to localStorage
+   automatically — no errors either way. */
+const Storage = {
+  async set(key, value, shared=false){
+    if(window.storage && typeof window.storage.set === "function"){
+      try{ return await window.storage.set(key, value, shared); }
+      catch(e){ console.warn("Cloud storage unavailable, using local storage instead.", e); }
+    }
+    try{ localStorage.setItem(key, value); return {key, value, shared}; }
+    catch(e){ console.error("Local storage set failed", e); throw e; }
+  },
+  async get(key, shared=false){
+    if(window.storage && typeof window.storage.get === "function"){
+      try{ return await window.storage.get(key, shared); }
+      catch(e){ /* fall through to local */ }
+    }
+    const raw = localStorage.getItem(key);
+    if(raw===null) throw new Error("not found");
+    return {key, value:raw, shared};
+  },
+  async list(prefix="", shared=false){
+    if(window.storage && typeof window.storage.list === "function"){
+      try{ return await window.storage.list(prefix, shared); }
+      catch(e){ console.warn("Cloud storage list unavailable, using local storage instead.", e); }
+    }
+    const keys = Object.keys(localStorage).filter(k=>k.startsWith(prefix));
+    return {keys, prefix, shared};
+  },
+  async delete(key, shared=false){
+    if(window.storage && typeof window.storage.delete === "function"){
+      try{ return await window.storage.delete(key, shared); }
+      catch(e){ /* fall through */ }
+    }
+    localStorage.removeItem(key);
+    return {key, deleted:true, shared};
+  }
+};
+
+/* ============== STATE ============== */
+let state = {
+  screen: "home",      // home | tables | menu | bill | history
+  room: null,
+  table: null,
+  cart: {},             // key: itemName+variant -> {name,variant,price,qty}
+  activeCat: "all",
+  search: "",
+  lastBill: null,
+  occupied: {},          // "room-table" -> true, derived from open history
+};
+
+function fmt(n){ return "₹" + Number(n).toLocaleString("en-IN"); }
+function cartKey(name, variant){ return name + (variant? "::"+variant : ""); }
+
+function cartTotal(){
+  return Object.values(state.cart).reduce((s,i)=>s + i.price*i.qty, 0);
+}
+function cartCount(){
+  return Object.values(state.cart).reduce((s,i)=>s + i.qty, 0);
+}
+
+function addToCart(name, price, variant){
+  const key = cartKey(name, variant);
+  if(state.cart[key]){ state.cart[key].qty += 1; }
+  else { state.cart[key] = {name, variant, price, qty:1}; }
+  refreshCartAndMenu();
+}
+function decFromCart(key){
+  if(!state.cart[key]) return;
+  state.cart[key].qty -= 1;
+  if(state.cart[key].qty <= 0) delete state.cart[key];
+  refreshCartAndMenu();
+}
+function incCart(key){
+  if(!state.cart[key]) return;
+  state.cart[key].qty += 1;
+  refreshCartAndMenu();
+}
+function clearCart(){
+  state.cart = {};
+  refreshCartAndMenu();
+}
+function refreshCartAndMenu(){
+  refreshCartPanel();
+  if(state.screen==="menu") renderMenuList();
+}
+
+function goHome(){
+  state.screen = "home"; state.room=null; state.table=null; state.cart={}; state.activeCat="all"; state.search=""; state.lastBill=null;
+  render();
+}
+function goHistory(){
+  state.screen = "history";
+  render();
+  loadHistory();
+}
+function selectRoom(r){
+  state.room = r; state.screen = "tables"; render();
+}
+function selectTable(t){
+  state.table = t; state.screen = "menu"; render();
+}
+
+/* ============== RENDER ============== */
+function updateCrumbs(){
+  const el = document.getElementById("crumbs");
+  let parts = [];
+  if(state.screen==="home"){ parts=[`<span class="cur">Select Room</span>`]; }
+  else if(state.screen==="tables"){ parts=[`<span class="seg">${state.room.name}</span>`,`<span class="cur">Select Table</span>`]; }
+  else if(state.screen==="menu"){ parts=[`<span class="seg">${state.room.name}</span>`,`<span class="seg">Table ${state.table}</span>`,`<span class="cur">Menu</span>`]; }
+  else if(state.screen==="bill"){ parts=[`<span class="seg">${state.room.name}</span>`,`<span class="seg">Table ${state.table}</span>`,`<span class="cur">Bill</span>`]; }
+  else if(state.screen==="history"){ parts=[`<span class="cur">Order History</span>`]; }
+  el.innerHTML = parts.join(`<span class="seg">/</span>`);
+}
+
+function render(){
+  updateCrumbs();
+  const app = document.getElementById("app");
+  const mcb = document.getElementById("mobileCartBar");
+  mcb.style.display = (state.screen==="menu") ? "flex" : "none";
+  if(state.screen==="menu"){
+    document.getElementById("mcInfo").textContent = cartCount() + " item" + (cartCount()!==1?"s":"");
+    document.getElementById("mcTotal").textContent = fmt(cartTotal());
+  }
+
+  if(state.screen==="home") app.innerHTML = renderHome();
+  else if(state.screen==="tables") app.innerHTML = renderTables();
+  else if(state.screen==="menu") app.innerHTML = renderMenu();
+  else if(state.screen==="bill") app.innerHTML = renderBill();
+  else if(state.screen==="history") app.innerHTML = renderHistoryShell();
+
+  if(state.screen==="menu"){
+    renderMenuList();
+    document.getElementById("searchInput")?.addEventListener("input", e=>{
+      state.search = e.target.value; renderMenuList();
+    });
+  }
+}
+
+function renderHome(){
+  return `
+    <h1 class="page-title">Where is the order?</h1>
+    <p class="page-sub">Pick the seating area to begin a new order.</p>
+    <div class="room-grid">
+      ${ROOMS.map(r=>`
+        <div class="room-card" onclick='selectRoom(${JSON.stringify(r).replace(/'/g,"&apos;")})'>
+          <span class="tag">${r.tables} tables</span>
+          <div class="num">ROOM</div>
+          <h3>${r.name}</h3>
+          <p>${r.tag}</p>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderTables(){
+  let html = `<button class="back-link" onclick="goHome()">&larr; Change room</button>`;
+  html += `<h1 class="page-title">${state.room.name}</h1>`;
+  html += `<p class="page-sub">Select a table to start the order.</p>`;
+  html += `<div class="table-grid">`;
+  for(let i=1;i<=state.room.tables;i++){
+    html += `<div class="table-btn" onclick="selectTable(${i})">
+      <div class="t-num">${i}</div>
+      <div class="t-label">Table</div>
+    </div>`;
+  }
+  html += `</div>`;
+  return html;
+   }
+  function renderCartPanelInner(){
+  const items = Object.entries(state.cart);
+  let body = `<h4>Order <span style="font-size:11px;color:var(--ink-soft);font-family:'Inter'">${cartCount()} item${cartCount()!==1?'s':''}</span></h4>
+  <div class="cart-loc">${state.room ? state.room.name.toUpperCase() : ''} · TABLE ${state.table||''}</div>
+  <div class="cart-items">`;
+  if(items.length===0){
+    body += `<div class="cart-empty">No items added yet.</div>`;
+  } else {
+    items.forEach(([key,it])=>{
+      body += `<div class="cart-line">
+        <div style="flex:1;min-width:0;">
+          <div class="cl-name">${it.name}${it.variant?` <span class="cl-meta">(${it.variant})</span>`:""}</div>
+        </div>
+        <div class="qty-ctrl">
+          <button onclick="decFromCart('${key.replace(/'/g,"\\'")}')">−</button>
+          <span>${it.qty}</span>
+          <button onclick="incCart('${key.replace(/'/g,"\\'")}')">+</button>
+        </div>
+        <div class="cl-amt">${fmt(it.price*it.qty)}</div>
+      </div>`;
+    });
+  }
+  body += `</div>`;
+  body += `<div class="cart-total"><span>Total</span><span>${fmt(cartTotal())}</span></div>`;
+  body += `<button class="btn-generate" ${items.length===0?"disabled":""} onclick="generateBill()">Generate Bill</button>`;
+  if(items.length>0) body += `<button class="btn-clear" onclick="clearCart()">Clear order</button>`;
+  return body;
+}
+
+function refreshCartPanel(){
+  const panel = document.querySelector(".cart-panel");
+  if(panel) panel.innerHTML = renderCartPanelInner();
+  const mcb = document.getElementById("mobileCartBar");
+  if(mcb && state.screen==="menu"){
+    document.getElementById("mcInfo").textContent = cartCount() + " item" + (cartCount()!==1?"s":"");
+    document.getElementById("mcTotal").textContent = fmt(cartTotal());
+  }
+}
+
+function esc(s){ return s.replace(/'/g,"\\'"); }
+
+// Renders either an "+ Add" button, or — once the item is in the cart —
+// a live quantity stepper right in the button's place.
+function controlHtml(key, name, price, variant, custom){
+  const inCart = state.cart[key];
+  const keyEsc = key.replace(/'/g,"\\'");
+  if(inCart){
+    return `<div class="qty-ctrl mini">
+      <button onclick="decFromCart('${keyEsc}')">−</button>
+      <span>${inCart.qty}</span>
+      <button onclick="incCart('${keyEsc}')">+</button>
+    </div>`;
+  }
+  if(custom){
+    return `<button class="add-btn" onclick="addCustomPrice('${esc(name)}')">+ Add</button>`;
+  }
+  const variantArg = variant ? `, '${esc(variant)}'` : "";
+  return `<button class="add-btn" onclick="addToCart('${esc(name)}', ${price}${variantArg})">+ Add</button>`;
+}
+
+function renderMenuList(){
+  const tabsEl = document.getElementById("catTabs");
+  const cats = ["all", ...MENU.map(c=>c.cat)];
+  tabsEl.innerHTML = cats.map(c=>`<div class="cat-tab ${state.activeCat===c?'active':''}" onclick="setCat('${c.replace(/'/g,"\\'")}')">${c==="all"?"All Items":c}</div>`).join("");
+
+  const listEl = document.getElementById("menuList");
+  const q = state.search.trim().toLowerCase();
+  let html = "";
+  let any = false;
+  MENU.forEach(section=>{
+    if(state.activeCat!=="all" && state.activeCat!==section.cat) return;
+    const filtered = section.items.filter(it=> !q || it.n.toLowerCase().includes(q));
+    if(filtered.length===0) return;
+    any = true;
+    html += `<div class="cat-heading">${section.cat}</div>`;
+    filtered.forEach(it=>{
+      const hasVariant = typeof it.p === "object";
+      if(hasVariant){
+        const fullKey = cartKey(it.n,'Full');
+        const halfKey = cartKey(it.n,'Half');
+        html += `<div class="item-row">
+          <div class="item-info">
+            <div class="item-name">${it.n}</div>
+            <div class="item-price">Full ${fmt(it.p.full)} · Half ${fmt(it.p.half)}</div>
+          </div>
+          <div class="half-opt">
+            ${controlHtml(fullKey, it.n, it.p.full, 'Full')}
+            ${controlHtml(halfKey, it.n, it.p.half, 'Half')}
+          </div>
+        </div>`;
+      } else if(it.p>0){
+        const key = cartKey(it.n);
+        html += `<div class="item-row">
+          <div class="item-info">
+            <div class="item-name">${it.n}</div>
+            <div class="item-price">${fmt(it.p)}</div>
+          </div>
+          ${controlHtml(key, it.n, it.p)}
+        </div>`;
+      } else {
+        const key = cartKey(it.n);
+        html += `<div class="item-row">
+          <div class="item-info">
+            <div class="item-name">${it.n}</div>
+            <div class="item-price"><span class="na">set price</span></div>
+          </div>
+          ${controlHtml(key, it.n, null, null, true)}
+        </div>`;
+      }
+    });
+  });
+  if(!any) html = `<div class="no-results">No items match “${state.search}”.</div>`;
+  listEl.innerHTML = html;
+}
+
+// Only the category strip should move when a category is tapped —
+// the header, search bar and item list stay put. So we just repaint
+// the list and gently scroll the tapped tab into view *inside its own
+// horizontal strip*, without touching the page's vertical scroll.
+function setCat(c){
+  state.activeCat = c;
+  renderMenuList();
+  const tabsEl = document.getElementById("catTabs");
+  const activeTab = tabsEl?.querySelector(".cat-tab.active");
+  if(activeTab && tabsEl){
+    const tabLeft = activeTab.offsetLeft;
+    const tabRight = tabLeft + activeTab.offsetWidth;
+    const viewLeft = tabsEl.scrollLeft;
+    const viewRight = viewLeft + tabsEl.clientWidth;
+    if(tabLeft < viewLeft){
+      tabsEl.scrollTo({left: tabLeft - 12, behavior:"smooth"});
+    } else if(tabRight > viewRight){
+      tabsEl.scrollTo({left: tabRight - tabsEl.clientWidth + 12, behavior:"smooth"});
+    }
+  }
+}
+
+function addCustomPrice(name){
+  const val = prompt(`Enter price for "${name}" (₹):`);
+  if(val===null) return;
+  const price = parseFloat(val);
+  if(isNaN(price) || price<0){ alert("Please enter a valid price."); return; }
+  addToCart(name, price);
+}
+
+/* ============== BILL ============== */
+async function generateBill(){
+  if(Object.keys(state.cart).length===0) return;
+  const now = new Date();
+  state.lastBill = {
+    id: "BBC" + now.getTime(),
+    room: state.room.name,
+    table: state.table,
+    items: Object.values(state.cart).map(i=>({...i})),
+    total: cartTotal(),
+    time: now.toISOString(),
+    saved: false,
+  };
+  state.screen = "bill";
+  render();
+  // Auto-save the bill to history the moment it's generated.
+  await saveBillToHistory(state.lastBill);
+}
+
+function renderBill(){
+  const b = state.lastBill;
+  const dt = new Date(b.time);
+  const dateStr = dt.toLocaleDateString("en-IN", {day:"2-digit",month:"short",year:"numeric"});
+  const timeStr = dt.toLocaleTimeString("en-IN", {hour:"2-digit",minute:"2-digit"});
+  let itemsHtml = b.items.map(it=>`
+    <div class="r-item">
+      <div class="ri-name">${it.name}${it.variant?` (${it.variant})`:""}</div>
+      <div class="ri-qty">x${it.qty}</div>
+      <div class="ri-amt">${fmt(it.price*it.qty)}</div>
+    </div>
+  `).join("");
+  return `
+    <div class="receipt-wrap">
+      <div>
+        <div class="receipt" id="receiptBox">
+          <div class="r-head">
+            <div class="r-brand">BBC</div>
+            <div class="r-sub">Tandoor Restaurant</div>
+          </div>
+          <div class="r-meta"><span>Bill No.</span><span>${b.id.slice(-8)}</span></div>
+          <div class="r-meta"><span>Date</span><span>${dateStr} · ${timeStr}</span></div>
+          <div class="r-meta"><span>Room</span><span>${b.room}</span></div>
+          <div class="r-meta"><span>Table</span><span>${b.table}</span></div>
+          <div class="r-rule"></div>
+          ${itemsHtml}
+          <div class="r-rule"></div>
+          <div class="r-total"><span>Total</span><span>${fmt(b.total)}</span></div>
+          <div class="r-foot">
+            <div class="thank">Thank You</div>
+            <div>Visit Again ·  Family seating available</div>
+          </div>
+        </div>
+        <div class="bill-actions">
+          <button class="btn-primary" onclick="window.print()">Print Bill</button>
+          <button class="btn-secondary" onclick="goHome()">New Order</button>
+        </div>
+        <div class="saved-badge" id="savedBadge" style="display:block;">${b.saved ? "✓ Saved to history" : "Saving to history…"}</div>
+
+        <div class="printer-box">
+          <div class="printer-row">
+            <button class="btn-tiny" onclick="connectPrinter()">🔌 Connect Bill Printer</button>
+            <button class="btn-tiny" onclick="printViaBluetooth()">🖨️ Print via Connected Printer</button>
+          </div>
+          <div id="printerStatus" class="printer-status">${printer.connected ? `✓ Connected to ${printer.deviceName || "printer"}` : "Pair a Bluetooth thermal bill printer once — after that, this button prints directly to it. Works on Chrome/Edge. On other devices, just use \u201cPrint Bill\u201d above with any connected printer."}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ============== BILLING MACHINE (Bluetooth thermal printer) ==============
+   Connects to common ESC/POS-style Bluetooth Low Energy receipt printers,
+   the kind most small restaurants use at the counter. Fully feature-detected
+   and wrapped in try/catch throughout, so unsupported browsers or an
+   unavailable printer never throw an error — they just show a status message
+   and the person can fall back to "Print Bill" (which works with any printer
+   installed on the computer/tablet, wired or wireless). */
+let printer = { device:null, characteristic:null, connected:false, deviceName:"" };
+
+const PRINTER_PROFILES = [
+  { service:"000018f0-0000-1000-8000-00805f9b34fb", chars:["00002af1-0000-1000-8000-00805f9b34fb"] },
+  { service:"0000ffe0-0000-1000-8000-00805f9b34fb", chars:["0000ffe1-0000-1000-8000-00805f9b34fb"] },
+  { service:"49535343-fe7d-4ae5-8fa9-9fafd205e455", chars:["49535343-8841-43f4-a8d4-ecbe34729bb3","49535343-1e4d-4bd9-ba61-23c647249616"] },
+];
+
+function setPrinterStatus(msg, isError){
+  const el = document.getElementById("printerStatus");
+  if(el){ el.textContent = msg; el.style.color = isError ? "var(--ember)" : "var(--ink-soft)"; }
+}
+
+async function connectPrinter(){
+  if(!navigator.bluetooth){
+    setPrinterStatus("This browser can't pair Bluetooth printers directly. Use \u201cPrint Bill\u201d instead — it works with any printer set up on this device.", true);
+    return;
+  }
+  try{
+    setPrinterStatus("Choose your printer from the list that opens…");
+    const device = await navigator.bluetooth.requestDevice({
+      acceptAllDevices: true,
+      optionalServices: PRINTER_PROFILES.map(p=>p.service)
+    });
+    setPrinterStatus(`Connecting to ${device.name || "printer"}…`);
+    const server = await device.gatt.connect();
+
+    let foundChar = null;
+    for(const profile of PRINTER_PROFILES){
+      try{
+        const service = await server.getPrimaryService(profile.service);
+        for(const charUUID of profile.chars){
+          try{
+            foundChar = await service.getCharacteristic(charUUID);
+            break;
+          }catch(e){ /* this characteristic not on this device, try next */ }
+        }
+        if(foundChar) break;
+      }catch(e){ /* this service not on this device, try next profile */ }
+    }
+
+    if(!foundChar){
+      setPrinterStatus(`Paired with ${device.name || "the printer"}, but couldn't find its print channel. Try \u201cPrint Bill\u201d instead.`, true);
+      return;
+    }
+
+    printer.device = device;
+    printer.characteristic = foundChar;
+    printer.connected = true;
+    printer.deviceName = device.name || "Printer";
+    device.addEventListener("gattserverdisconnected", ()=>{
+      printer.connected = false;
+      setPrinterStatus("Printer disconnected. Tap Connect to pair again.");
+    });
+    setPrinterStatus(`✓ Connected to ${printer.deviceName}`);
+  }catch(e){
+    console.error("printer connect failed", e);
+    if(e && e.name === "NotFoundError"){
+      setPrinterStatus("No printer was selected.");
+    } else {
+      setPrinterStatus("Couldn't connect. Make sure the printer is powered on, in pairing mode, and in range.", true);
+    }
+  }
+}
+
+function centerText(s,w){ s=String(s); const pad=Math.max(0, Math.floor((w-s.length)/2)); return " ".repeat(pad)+s; }
+function padRightText(s,w){ s=String(s); return s + " ".repeat(Math.max(0,w-s.length)); }
+
+function buildReceiptText(b){
+  const W = 32; // standard 58mm thermal paper width in characters
+  const rule = "-".repeat(W);
+  const dt = new Date(b.time);
+  let out = "";
+  out += centerText("BBC TANDOOR", W) + "\n";
+  out += centerText("Restaurant", W) + "\n";
+  out += rule + "\n";
+  out += `Bill  ${b.id.slice(-8)}\n`;
+  out += `${dt.toLocaleDateString("en-IN")}  ${dt.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}\n`;
+  out += `${b.room} - Table ${b.table}\n`;
+  out += rule + "\n";
+  b.items.forEach(it=>{
+    const nm = it.name + (it.variant ? ` (${it.variant})` : "");
+    out += nm + "\n";
+    const amt = fmt(it.price*it.qty);
+    out += padRightText(`  x${it.qty}`, W-amt.length) + amt + "\n";
+  });
+  out += rule + "\n";
+  const totalAmt = fmt(b.total);
+  out += padRightText("TOTAL", W-totalAmt.length) + totalAmt + "\n";
+  out += rule + "\n";
+  out += centerText("Thank You - Visit Again", W) + "\n\n\n";
+  return out;
+}
+
+async function printViaBluetooth(){
+  if(!printer.connected || !printer.characteristic){
+    setPrinterStatus("No printer connected yet. Tap \u201cConnect Bill Printer\u201d first.", true);
+    return;
+  }
+  try{
+    setPrinterStatus("Sending to printer…");
+    const text = buildReceiptText(state.lastBill);
+    const encoder = new TextEncoder();
+    const initCmd = new Uint8Array([0x1B, 0x40]);       // ESC @  — initialize printer
+    const cutCmd  = new Uint8Array([0x1D, 0x56, 0x00]); // GS V 0 — full paper cut (ignored if unsupported)
+    const bodyBytes = encoder.encode(text);
+    const payload = new Uint8Array(initCmd.length + bodyBytes.length + cutCmd.length);
+    payload.set(initCmd, 0);
+    payload.set(bodyBytes, initCmd.length);
+    payload.set(cutCmd, initCmd.length + bodyBytes.length);
+
+    const chunkSize = 180; // safe under typical BLE MTU limits
+    for(let i=0; i<payload.length; i+=chunkSize){
+      const chunk = payload.slice(i, i+chunkSize);
+      await printer.characteristic.writeValue(chunk);
+      await new Promise(r=>setTimeout(r, 40));
+    }
+    setPrinterStatus("✓ Sent to printer");
+  }catch(e){
+    console.error("print via bluetooth failed", e);
+    setPrinterStatus("Couldn't send to the printer. Try reconnecting, or use \u201cPrint Bill\u201d instead.", true);
+  }
+}
+
+async function saveBillToHistory(b){
+  try{
+    b.saved = true;
+    await Storage.set(`orders:${b.id}`, JSON.stringify(b), false);
+    const badge = document.getElementById("savedBadge");
+    if(badge){ badge.textContent = "✓ Saved to history"; badge.style.display = "block"; }
+  }catch(e){
+    console.error("save failed", e);
+    const badge = document.getElementById("savedBadge");
+    if(badge){ badge.textContent = "⚠ Could not save to history — you can still print this bill."; badge.style.display = "block"; }
+  }
+}
+
+/* ============== HISTORY ============== */
+function renderHistoryShell(){
+  return `
+    <button class="back-link" onclick="goHome()">&larr; New order</button>
+    <h1 class="page-title">Order History</h1>
+    <p class="page-sub">All saved bills, most recent first.</p>
+    <div class="hist-summary" id="histStats"></div>
+    <div id="histList"><div class="empty-state">Loading…</div></div>
+  `;
+}
+
+async function loadHistory(){
+  const listEl = document.getElementById("histList");
+  const statsEl = document.getElementById("histStats");
+  try{
+    const res = await Storage.list("orders:", false);
+    const keys = (res && res.keys) ? res.keys : [];
+    if(keys.length===0){
+      statsEl.innerHTML = "";
+      listEl.innerHTML = `<div class="empty-state">No bills saved yet. Orders you confirm will show up here.</div>`;
+      return;
+    }
+    const orders = [];
+    for(const k of keys){
+      try{
+        const r = await Storage.get(k, false);
+        if(r && r.value) orders.push(JSON.parse(r.value));
+      }catch(e){ /* skip unreadable key */ }
+    }
+    orders.sort((a,b)=> new Date(b.time) - new Date(a.time));
+
+    const totalRevenue = orders.reduce((s,o)=>s+o.total,0);
+    const today = new Date().toDateString();
+    const todayOrders = orders.filter(o=> new Date(o.time).toDateString()===today);
+    const todayRevenue = todayOrders.reduce((s,o)=>s+o.total,0);
+
+    statsEl.innerHTML = `
+      <div class="stat-card"><div class="s-label">Orders Today</div><div class="s-val">${todayOrders.length}</div></div>
+      <div class="stat-card"><div class="s-label">Today's Sales</div><div class="s-val">${fmt(todayRevenue)}</div></div>
+      <div class="stat-card"><div class="s-label">Total Orders</div><div class="s-val">${orders.length}</div></div>
+      <div class="stat-card"><div class="s-label">Total Revenue</div><div class="s-val">${fmt(totalRevenue)}</div></div>
+    `;
+
+    listEl.innerHTML = orders.map(o=>{
+      const dt = new Date(o.time);
+      const dateStr = dt.toLocaleDateString("en-IN",{day:"2-digit",month:"short"});
+      const timeStr = dt.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});
+      return `<div class="hist-row" onclick='viewOldBill(${JSON.stringify(o).replace(/'/g,"&apos;")})'>
+        <div class="hist-left">
+          <div class="h-loc">${o.room} · Table ${o.table}</div>
+          <div class="h-time">${dateStr}, ${timeStr} · ${o.items.length} item${o.items.length!==1?'s':''}</div>
+        </div>
+        <div class="hist-right">${fmt(o.total)}</div>
+      </div>`;
+    }).join("");
+  }catch(e){
+    console.error(e);
+    listEl.innerHTML = `<div class="empty-state">Could not load history right now.</div>`;
+  }
+}
+
+function viewOldBill(o){
+  o.saved = true;
+  state.lastBill = o;
+  state.room = {name:o.room};
+  state.table = o.table;
+  state.screen = "bill";
+  render();
+}
+
+/* init */
+render();
+</script>
+</body>
+</html>
